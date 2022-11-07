@@ -17,7 +17,7 @@ do
     && echo Sending heartbeat to BetterUptime... \
     && curl -X POST $BETTERUPTIME_URL \
     && echo Pinging BigQuery to update data... \
-    && exec python /home/app/update_bigquery.py \
+    && python /home/app/update_bigquery.py \
     && echo Done.
 
     # Reset memory usage
