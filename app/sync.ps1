@@ -1,5 +1,5 @@
 $dest = "/tmp/data/r2/uuids"
-$uuidsAllCsv = "$dest/uuids-all.csv"
+$uuidsAllCsv = "/tmp/data/uuids-all.csv"
 $rcloneConfig = "/tmp/rclone.conf"
 
 # Set up rclone.conf (base64 encoded in env because I'm lazy)
@@ -20,11 +20,11 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # Combine all uuids into one file
-(@('uuids', 'uuids_workdir')
-| ForEach-Object { Get-ChildItem -Recurse -File "$dest\$_" })
-| ForEach-Object { Import-Csv $_ }
-| ForEach-Object { [Ordered]@{ts = $_.ts; id_type = $_.id_type; id = $_.id } }
-| Export-Csv -Encoding utf8 $uuidsAllCsv -UseQuotes Never
+bash -c "$PSScriptRoot/combine.sh"
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Failed to combine uuids!"
+    exit 1
+}
 
 $uploadFailure = $false
 # Copy to gcs for BigQuery
