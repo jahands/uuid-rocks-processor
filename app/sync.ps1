@@ -23,7 +23,7 @@ if ($LASTEXITCODE -ne 0) {
 (@('uuids', 'uuids_workdir')
 | ForEach-Object { Get-ChildItem -Recurse -File "$dest\$_" })
 | ForEach-Object { Import-Csv $_ }
-| ForEach-Object { [Ordered]@{ts = [int64]$_.ts; id_type = [int64]$_.id_type; id = $_.id } }
+| ForEach-Object { [Ordered]@{ts = $_.ts; id_type = $_.id_type; id = $_.id } }
 | Export-Csv -Encoding utf8 $uuidsAllCsv -UseQuotes Never
 
 $uploadFailure = $false
