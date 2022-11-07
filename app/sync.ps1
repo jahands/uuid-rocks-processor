@@ -11,6 +11,7 @@ if (-not (Test-Path $rcloneConfig)) {
 
 rclone --config=$rcloneConfig `
     sync r2:uuids $dest `
+    --include=/uuids/** --include=/uuids_workdir/** `
     --fast-list --size-only --transfers=20
 
 # Check if rclone succeeded
