@@ -1,19 +1,37 @@
-FROM mcr.microsoft.com/powershell:debian-bullseye-slim
+FROM python:3.9-slim-bullseye
 RUN apt-get update && apt-get install -y \
-    curl \
+    curl gnupg apt-transport-https \
     unzip \
     csvkit \
-    && rm -rf /var/lib/apt/lists/*
+    python3.9 python3-pip
 RUN curl https://rclone.org/install.sh | bash
 
-# Setup user junk
-RUN groupadd -g 999 worker && \
-    useradd -r -u 999 -g worker worker
-RUN mkdir /home/worker
-RUN chown -R worker:worker /home/worker
-USER worker
+# === Install PowerShell ===
 
-# App stuff
-WORKDIR /home/worker
-COPY /app ${HOME}
+# Import the public repository GPG keys
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+
+# Register the Microsoft Product feed
+RUN sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-debian-bullseye-prod bullseye main" > /etc/apt/sources.list.d/microsoft.list'
+
+# Install PowerShell
+RUN apt-get update \
+    && apt-get install -y powershell \
+    && rm -rf /var/lib/apt/lists/*
+
+# === Done installing PowerShell ===
+
+# Move to app directory and copy over app
+ENV APPDIR /home/app
+RUN mkdir ${APPDIR}
+WORKDIR ${APPDIR}
+COPY /app ${APPDIR}
+
+# Set up python
+ENV PATH=${PATH}:${APPDIR}/.local/bin
+ENV PYTHONPATH=${PYTHONPATH}:${PWD}
+RUN pip3 install poetry
+RUN poetry config virtualenvs.create false
+RUN poetry install --only main
+
 ENTRYPOINT ["./docker-entrypoint.sh"]

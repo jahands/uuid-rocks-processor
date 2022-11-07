@@ -1,12 +1,18 @@
 $dest = "/tmp/data/r2/uuids"
 $uuidsAllCsv = "/tmp/data/uuids-all.csv"
 $rcloneConfig = "/tmp/rclone.conf"
+$gcpKeyfile = "/tmp/gcp-keyfile.json"
 
 # Set up rclone.conf (base64 encoded in env because I'm lazy)
 if (-not (Test-Path $rcloneConfig)) {
     [System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String($env:RCLONE_CONFIG)).
     Replace("{N}", "`n") | 
         Out-File -Encoding utf8 $rcloneConfig
+}
+# Set up gcp keyfile
+if (-not (Test-Path $gcpKeyfile)) {
+    $env:GCP_KEYFILE | 
+        Out-File -Encoding utf8 $gcpKeyfile
 }
 
 rclone --config=$rcloneConfig `
