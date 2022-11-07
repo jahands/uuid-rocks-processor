@@ -14,10 +14,10 @@ do
     && date \
     && pwsh -File /home/app/sync.ps1 \
     && date \
-    && echo Sending heartbeat to BetterUptime... \
-    && curl -X POST $BETTERUPTIME_URL \
     && echo Pinging BigQuery to update data... \
     && python /home/app/update_bigquery.py \
+    && echo Sending heartbeat to BetterUptime... \
+    && curl -X POST $BETTERUPTIME_URL \
     && echo Done.
 
     # Reset memory usage
